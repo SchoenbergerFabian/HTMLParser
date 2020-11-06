@@ -1,21 +1,61 @@
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 public class Main {
+
+    private static final File file = new File("sample1.html");
+
     public static void main(String[] args) {
         ExecutorService executor = Executors.newCachedThreadPool();
 
-        ParserCallable parser = new ParserCallable(1, new Tag("<d>hallo <a></a><b>tschüss</b></d>"));
-
+        List<PrioritisedString> tags = new ArrayList<>();
         try {
-            System.out.println(executor.submit(parser).get().getString());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+            tags = ParserCallable.getSplit(readFile(file));
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
+        List<ParserCallable> parser = new ArrayList<>();
+        for (PrioritisedString string: tags) {
+            parser.add(new ParserCallable(string.getPriority(), new Tag(string.getString())));
+        }
+
+        List<Future<PrioritisedString>> resultFutures = new ArrayList<>();
+        try {
+            resultFutures = executor.invokeAll(parser);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        resultFutures.stream()
+                .map(future -> {
+                    try {
+                        return future.get();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }).sorted()
+                .map(prioritisedString -> prioritisedString.getString())
+                .forEach(System.out::print);
+
         executor.shutdown();
+    }
+
+    private static String readFile(File file) throws IOException {
+        return Files.lines(file.toPath())
+                .reduce((string1,string2)->string1+string2)
+                .orElse("");
     }
 }

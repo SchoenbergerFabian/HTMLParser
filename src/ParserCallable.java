@@ -79,6 +79,7 @@ public class ParserCallable implements Callable<PrioritisedString> {
 
                     if(content.charAt(innerIndex)=='<' && content.charAt(innerIndex+1)!='/'){
 
+                        possibleContent.append(content.charAt(innerIndex));
                         count++;
 
                     }else if(content.charAt(innerIndex)=='<' && content.charAt(innerIndex+1)=='/'){
@@ -96,6 +97,8 @@ public class ParserCallable implements Callable<PrioritisedString> {
                             counter++;
                             split = new StringBuilder();
                             break;
+                        }else{
+                            possibleContent.append(content.charAt(innerIndex));
                         }
 
                     }else{
