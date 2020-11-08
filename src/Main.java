@@ -2,17 +2,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 public class Main {
 
-    private static final File file = new File("sample1.html");
+    private static final File file = new File("simple1.txt");
 
     public static void main(String[] args) {
         ExecutorService executor = Executors.newCachedThreadPool();
@@ -24,9 +22,12 @@ public class Main {
             e.printStackTrace();
         }
 
+
         List<ParserCallable> parser = new ArrayList<>();
         for (PrioritisedString string: tags) {
-            parser.add(new ParserCallable(string.getPriority(), new Tag(string.getString())));
+            if(!string.getString().trim().equals("")){
+                parser.add(new ParserCallable(string.getPriority(), new Tag(string.getString())));
+            }
         }
 
         List<Future<PrioritisedString>> resultFutures = new ArrayList<>();

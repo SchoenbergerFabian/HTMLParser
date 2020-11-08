@@ -9,8 +9,6 @@ public class Tag {
 
     public Tag(String value){
 
-        System.out.println(value);
-
         valid = false;
 
         //< ... >
@@ -19,8 +17,9 @@ public class Tag {
             String fullStartTag = split[0] + ">";
             String[] startTagArgs=fullStartTag.substring(1, fullStartTag.length()-1).split(" ");
             for(int index = 0; index<startTagArgs.length&&!(startTagArgs[index].contains("=")||(index+1<startTagArgs.length&&startTagArgs[index+1].startsWith("="))); index++){
-                tag+=startTagArgs[index];
+                tag+=startTagArgs[index]+" ";
             }
+            tag = tag.trim();
 
             //<tag> ... </tag>
             if(value.endsWith("</"+tag+">")){
@@ -33,18 +32,23 @@ public class Tag {
                 valid = true;
             }
         }else{
-            content = value;
+            valid = true;
+            content = " "+value.trim();
         }
 
     }
 
     public String getContent(){
-        String result = "\n";
+        String result = "";
+        if(!tag.equals("")){
+            result = "\n";
+        }
         if(valid){
             if(content==null||content.equals("")){
                 result += tag+": no content";
+            }else {
+                result += content;
             }
-            result += content;
         }else{
             result += tag+": error";
         }

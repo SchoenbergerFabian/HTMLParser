@@ -72,11 +72,11 @@ public class ParserCallable implements Callable<PrioritisedString> {
                     split.append(content.charAt(tagIndex));
                 }
                 split.append(">");
+                index = tagIndex;
 
                 int count = 1;
                 StringBuilder possibleContent = new StringBuilder();
                 for(int innerIndex = tagIndex+1; innerIndex<content.length(); innerIndex++){
-
                     if(content.charAt(innerIndex)=='<' && content.charAt(innerIndex+1)!='/'){
 
                         possibleContent.append(content.charAt(innerIndex));
@@ -107,6 +107,13 @@ public class ParserCallable implements Callable<PrioritisedString> {
 
                     }
                 }
+                //add if not ""
+                //= add if split is a single tag
+                if(!split.toString().equals("")){
+                    splits.add(new PrioritisedString(counter,split.toString()));
+                    counter++;
+                    split = new StringBuilder();
+                }
 
             }else{
                 split.append(content.charAt(index));
@@ -115,8 +122,9 @@ public class ParserCallable implements Callable<PrioritisedString> {
         }
         //add if not already added
         //= add if last split is not a tag
-        if(!split.toString().equals("")&&!splits.contains(split.toString())){
+        if(!split.toString().trim().equals("")&&!splits.contains(split.toString())){
             splits.add(new PrioritisedString(counter,split.toString()));
+            //counter++ not needed
         }
 
         return splits;
